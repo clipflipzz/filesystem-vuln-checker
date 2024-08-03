@@ -96,6 +96,12 @@ for _,s in pairs({
         assert("Potential RCE with Visual Basic applications")
         end
     end},
+    {name = 'Writefile for .vbe', callback = function()
+        writefile("Test.vbe", "test")
+        if isfile("Test.vbe") then 
+        assert("Potential RCE with Visual Basic applications (VBE file)")
+        end
+    end},
     {name = 'Writefile for .ps1', callback = function()
         writefile("Test.ps1", "test")
         if isfile("Test.ps1") then 
