@@ -486,7 +486,7 @@ if pcall(function() game:HttpGet('https://google.com') end) == true then
         if not success then return error('Argument missing or nil') end
     end, "Executor requested to a Vulnerable Roblox API")
     test('game.HttpGet | IP Logging', function()
-        local IPLoggingSites = {'http://ip-api.com/json', 'https://ipapi.co/json', 'https://ipwho.is', 'https://api.ipify.org?format=json', 'https://api64.ipify.org?format=json', 'https://v4.ident.me', 'https://grabify.link','https://ipapi.com', 'https://ip-api.io', 'https://freeipapi.om', 'https://ipapi.is', 'https://ipwhois.io'}
+        local IPLoggingSites = {'http://ip-api.com/json', 'https://ipapi.co/json', 'https://ipwho.is', 'https://api.ipify.org?format=json', 'https://api64.ipify.org?format=json', 'https://v4.ident.me', 'https://grabify.link','https://ipapi.com', 'https://ip-api.io', 'https://freeipapi.com', 'https://ipapi.is', 'https://ipwhois.io'}
         for i,v in pairs(IPLoggingSites) do
             local s,e = pcall(function() game:HttpGet(v) end)
             if s then
@@ -523,7 +523,7 @@ if pcall(function() request({ Url = 'https://google.com', Method = 'GET'}) end) 
         if not success then return error('Argument missing or nil') end
     end, "Executor requested to a Vulnerable Roblox API")
     test('request | IP Logging', function()
-        local IPLoggingSites = {'http://ip-api.com/json', 'https://ipapi.co/json', 'https://ipwho.is', 'https://api.ipify.org?format=json', 'https://api64.ipify.org?format=json', 'https://v4.ident.me', 'https://grabify.link','https://ipapi.com', 'https://ip-api.io', 'https://freeipapi.om', 'https://ipapi.is', 'https://ipwhois.io'}
+        local IPLoggingSites = {'http://ip-api.com/json', 'https://ipapi.co/json', 'https://ipwho.is', 'https://api.ipify.org?format=json', 'https://api64.ipify.org?format=json', 'https://v4.ident.me', 'https://grabify.link','https://ipapi.com', 'https://ip-api.io', 'https://freeipapi.com', 'https://ipapi.is', 'https://ipwhois.io'}
         for i,v in pairs(IPLoggingSites) do
             local s,e = pcall(function() request({ Url = v, Method = 'GET'}) end)
             if s then
