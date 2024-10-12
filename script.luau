@@ -1,7 +1,6 @@
 local passes, fails, undefined = 0, 0, 0
 local running = 0
 
-local blockedfunction
 local function test(name: string, callback_or_message: any, message: string): void
     running += 1
     if type(callback_or_message) == 'string' then
@@ -25,7 +24,6 @@ local function test(name: string, callback_or_message: any, message: string): vo
 	                if i then 
 	                    err = err:sub(i + 1)
 	                end
-	                blockedfunction = callback_or_message
 	                passes += 1
 	                print("✅ " .. name.. ": ".. err)
 	            end
@@ -41,6 +39,7 @@ local function test(name: string, callback_or_message: any, message: string): vo
             undefined += 1
             print("⏺️ " .. name.. ": Test Timeout")
         end
+        task.wait(0.5)
     end
 
     running -= 1
@@ -562,15 +561,14 @@ test('Bypassing Blocked Services with Empty Characters', function()
 	end
     error("Executor did not access the blocked function")
 end, 'WARNING: This means your executor is vulnerable to nearly all vulnerabilities') 
-if blockedfunction then
-	test('Bypassing protection by accessing an unprotected environment', function()
+test('Bypassing protection by accessing an unprotected environment', function()
 	    local old = getfenv()
 	    local oldgame = game
 	
 	    setfenv(1, getfenv(print))
 	    getfenv().game = nil
-	    local s,e = pcall(blockedfunction)
-		if s or string.find(e:lower(), 'argument') and string.find(e:lower(), 'missing or nil') or string.find(e:lower(), 'current thread cannot') and string.find(e:lower(), 'lacking capability') then
+	    local s,e = pcall(game:GetService("ScriptContext").AddCoreScriptLocal)
+		if s or string.find(e:lower(), 'argument') and string.find(e:lower(), 'missing or nil') or e:lower():find("Expected ':' not '.' calling member function") or string.find(e:lower(), 'current thread cannot') and string.find(e:lower(), 'lacking capability') then
 	        getfenv().game = oldgame
 	        setfenv(1, old)
 			return nil
@@ -578,12 +576,12 @@ if blockedfunction then
 	    getfenv().game = oldgame
 	    setfenv(1, old)
 	    error("Executor did not access the blocked function")
-	end, 'WARNING: This means your executor is vulnerable to all vulnerabilities')
-	test("Bypassing protection by accessing the parent of Workspace", function()
+end, 'WARNING: This means your executor is vulnerable to all vulnerabilities')
+test("Bypassing protection by accessing the parent of Workspace", function()
 		local oldgame = game
 		getfenv().game = workspace.Parent
 		local failed = false
-		local _, callback = pcall(blockedfunction)
+		local _, callback = pcall(game:GetService("ScriptContext").AddCoreScriptLocal)
 		if callback:match("Argument %d missing or nil") or callback:find("Expected ':' not '.' calling member function") or callback:lower():find('cannot call') and callback:lower():find('lacking capability') then
 			failed = true
 		end
@@ -591,11 +589,7 @@ if blockedfunction then
 		if not failed then
 			error("Executor did not access the blocked function")
 		end
-	end, "WARNING: This means your executor is vulnerable to nearly all vulnerabilities")
-else
-	test("Bypassing protection by accessing an unprotected environment", "No functions are blocked, can't test")
-	test("Bypassing protection by accessing the parent of Workspace", "No functions are blocked, can't test")
-end
+end, "WARNING: This means your executor is vulnerable to nearly all vulnerabilities")
 
 
 wait()
