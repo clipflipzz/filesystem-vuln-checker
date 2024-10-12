@@ -39,7 +39,7 @@ local function test(name: string, callback_or_message: any, message: string): vo
             undefined += 1
             print("⏺️ " .. name.. ": Test Timeout")
         end
-        task.wait(0.5)
+        task.wait(0.1)
     end
 
     running -= 1
@@ -197,11 +197,11 @@ test("BrowserService.SendCommand", function()
 end, 'This function allows a bad actor to send a command to a browser window')
     
 test("BrowserService.OpenNativeOverlay", function()
-    game:GetService('BrowserService'):OpenNativeOverlay()
+    game:GetService('BrowserService').OpenNativeOverlay()
 end, 'This function allows a bad actor to open an overlay window')
     
 test("BrowserService.OpenWeChatAuthWindow", function()
-    game:GetService('BrowserService'):OpenWeChatAuthWindow()
+    game:GetService('BrowserService').OpenWeChatAuthWindow()
 end, 'This function allows a bad actor to open a WeChat Auth window, allowing them to access any Roblox webpage')
     
 test("BrowserService.EmitHybridEvent", function()
