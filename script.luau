@@ -1,7 +1,7 @@
 local passes, fails, undefined = 0, 0, 0
 local running = 0
 
-local function test(name: string, callback_or_message: any, message: string): void
+local function test(name: string, callback_or_message: any, message: string): ()
     running += 1
     if type(callback_or_message) == 'string' then
         undefined += 1
@@ -11,24 +11,24 @@ local function test(name: string, callback_or_message: any, message: string): vo
         local succeeded = false
         function starttest()
             task.spawn(function()
-	            local success: boolean, err: string = pcall(callback_or_message)
-	        
-	            if success or not success and string.find(err, 'Argument') and string.find(err, 'missing or nil') then
-	                fails += 1
-	                warn("⛔ " .. name .. ": " .. message)
-	            elseif not success and string.find(err, 'current thread cannot') and string.find(err, 'lacking capability') then
-	                undefined += 1
-	                print("⏺️ " .. name.. ": Executor cannot access due to thread identity")
-	            else
-	                local _, i = err:find(":%d+: ") 
-	                if i then 
-	                    err = err:sub(i + 1)
-	                end
-	                passes += 1
-	                print("✅ " .. name.. ": ".. err)
-	            end
-	            succeeded = true
-		end)
+                local success: boolean, err: string = pcall(callback_or_message)
+            
+                if success or not success and err:match('Argument %d missing or nil') or err:find('Expected \':\' not \'.\' calling member function') then
+                    fails += 1
+                    warn("⛔ " .. name .. ": " .. message)
+                elseif not success and string.find(err, 'current thread cannot') and string.find(err, 'lacking capability') then
+                    undefined += 1
+                    print("⏺️ " .. name.. ": Executor cannot access due to thread identity")
+                else
+                    local _, i = err:find(":%d+: ") 
+                    if i then 
+                        err = err:sub(i + 1)
+                    end
+                    passes += 1
+                    print("✅ " .. name.. ": ".. err)
+                end
+                succeeded = true
+            end)
         end
 
         coroutine.wrap(starttest)()
@@ -39,7 +39,6 @@ local function test(name: string, callback_or_message: any, message: string): vo
             undefined += 1
             print("⏺️ " .. name.. ": Test Timeout")
         end
-        task.wait(0.1)
     end
 
     running -= 1
@@ -219,6 +218,12 @@ print()
 test('LinkingService.OpenUrl', function()
     game:GetService('LinkingService'):OpenUrl()
 end, 'This function can be used to launch a local file or a command.')
+
+-- OpenCloudService
+print()
+test('OpenCloudService.HttpRequestAsync', function()
+    game:GetService('OpenCloudService'):HttpRequestAsync()
+end, 'This function can be used to make an authenticated request')
 
 -- HttpService
 print()
@@ -499,20 +504,24 @@ if pcall(function() game:HttpPost('https://google.com', '') end) == true then
                 break
             end
         end
-        if not success then return error('Argument missing or nil') end
+        if success then
+            error("Executor did not access the function")
+        end
     end, "Executor requested to a Vulnerable Roblox API")
 else test('game.HttpPost | Robux API', 'Executor does not support function') end
 if pcall(function() request({ Url = 'https://google.com', Method = 'GET'}) end) == true then
     test('request | Roblox API', function()
         local RobloxVulnerableAPIS = {'https://accountinformation.roblox.com', 'https://accountsettings.roblox.com', 'https://twostepverification.roblox.com', 'https://trades.roblox.com', 'https://billing.roblox.com', 'https://economy.roblox.com', 'https://auth.roblox.com', 'https://accountinformation.roproxy.com', 'https://accountsettings.roproxy.com', 'https://twostepverification.roproxy.com', 'https://trades.roproxy.com', 'https://billing.roproxy.com', 'https://economy.roproxy.com', 'https://auth.roproxy.com'}
         for i,v in pairs(RobloxVulnerableAPIS) do
-            local s,e = pcall(function() request({ Url = v, Method = 'GET'}) end)
+            local s,_ = pcall(function() request({ Url = v, Method = 'GET'}) end)
             if s then
                 success = false
                 break
             end
         end
-        if not success then return error('Argument missing or nil') end
+        if success then
+            error("Executor did not access the function")
+        end
     end, "Executor requested to a Vulnerable Roblox API")
 else test('request | Roblox API', 'Executor does not support function') end
 -- File System
@@ -561,14 +570,14 @@ test('Bypassing Blocked Services with Empty Characters', function()
 	end
     error("Executor did not access the blocked function")
 end, 'WARNING: This means your executor is vulnerable to nearly all vulnerabilities') 
-test('Bypassing protection by accessing an unprotected environment', function()
+	test('Bypassing protection by accessing an unprotected environment', function()
 	    local old = getfenv()
 	    local oldgame = game
 	
 	    setfenv(1, getfenv(print))
 	    getfenv().game = nil
-	    local s,e = pcall(game:GetService("ScriptContext").AddCoreScriptLocal)
-		if s or string.find(e:lower(), 'argument') and string.find(e:lower(), 'missing or nil') or e:lower():find("Expected ':' not '.' calling member function") or string.find(e:lower(), 'current thread cannot') and string.find(e:lower(), 'lacking capability') then
+	    local s,e = pcall(game:GetService('ScriptContext').AddCoreScriptLocal)
+		if s or string.find(e:lower(), 'argument') and string.find(e:lower(), 'missing or nil') or string.find(e:lower(), 'current thread cannot') and string.find(e:lower(), 'lacking capability') then
 	        getfenv().game = oldgame
 	        setfenv(1, old)
 			return nil
@@ -576,12 +585,12 @@ test('Bypassing protection by accessing an unprotected environment', function()
 	    getfenv().game = oldgame
 	    setfenv(1, old)
 	    error("Executor did not access the blocked function")
-end, 'WARNING: This means your executor is vulnerable to all vulnerabilities')
-test("Bypassing protection by accessing the parent of Workspace", function()
+	end, 'WARNING: This means your executor is vulnerable to all vulnerabilities')
+	test("Bypassing protection by accessing the parent of Workspace", function()
 		local oldgame = game
 		getfenv().game = workspace.Parent
 		local failed = false
-		local _, callback = pcall(game:GetService("ScriptContext").AddCoreScriptLocal)
+		local _, callback = pcall(game:GetService('ScriptContext').AddCoreScriptLocal)
 		if callback:match("Argument %d missing or nil") or callback:find("Expected ':' not '.' calling member function") or callback:lower():find('cannot call') and callback:lower():find('lacking capability') then
 			failed = true
 		end
@@ -589,7 +598,7 @@ test("Bypassing protection by accessing the parent of Workspace", function()
 		if not failed then
 			error("Executor did not access the blocked function")
 		end
-end, "WARNING: This means your executor is vulnerable to nearly all vulnerabilities")
+	end, "WARNING: This means your executor is vulnerable to nearly all vulnerabilities")
 
 
 wait()
