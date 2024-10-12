@@ -491,7 +491,9 @@ if pcall(function() game:HttpGet('https://google.com') end) == true then
                 break
             end
         end
-        if not success then return error('Argument missing or nil') end
+        if success then
+            error("Executor did not access the function")
+        end
     end, "Executor requested to a Vulnerable Roblox API")
 else test('game.HttpGet | Roblox API', 'Executor does not support function') end
 if pcall(function() game:HttpPost('https://google.com', '') end) == true then
