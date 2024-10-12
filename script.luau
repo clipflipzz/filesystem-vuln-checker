@@ -560,14 +560,14 @@ test('Bypassing Blocked Services with Empty Characters', function()
 	end
     error("Executor did not access the blocked function")
 end, 'WARNING: This means your executor is vulnerable to nearly all vulnerabilities') 
-if blockedfunc then
+if blockedfunction then
 	test('Bypassing protection by accessing an unprotected environment', function()
 	    local old = getfenv()
 	    local oldgame = game
 	
 	    setfenv(1, getfenv(print))
 	    getfenv().game = nil
-	    local s,e = pcall(blockedfunc)
+	    local s,e = pcall(blockedfunction)
 		if s or string.find(e:lower(), 'argument') and string.find(e:lower(), 'missing or nil') or string.find(e:lower(), 'current thread cannot') and string.find(e:lower(), 'lacking capability') then
 	        getfenv().game = oldgame
 	        setfenv(1, old)
@@ -581,7 +581,7 @@ if blockedfunc then
 		local oldgame = game
 		getfenv().game = workspace.Parent
 		local failed = false
-		local _, callback = pcall(blockedfunc)
+		local _, callback = pcall(blockedfunction)
 		if callback:match("Argument %d missing or nil") or callback:find("Expected ':' not '.' calling member function") or callback:lower():find('cannot call') and callback:lower():find('lacking capability') then
 			failed = true
 		end
