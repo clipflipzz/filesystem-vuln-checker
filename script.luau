@@ -485,18 +485,7 @@ if pcall(function() game:HttpGet('https://google.com') end) == true then
         end
         if not success then return error('Argument missing or nil') end
     end, "Executor requested to a Vulnerable Roblox API")
-    test('game.HttpGet | IP Logging', function()
-        local IPLoggingSites = {'http://ip-api.com/json', 'https://ipapi.co/json', 'https://ipwho.is', 'https://api.ipify.org?format=json', 'https://api64.ipify.org?format=json', 'https://v4.ident.me', 'https://grabify.link','https://ipapi.com', 'https://ip-api.io', 'https://freeipapi.com', 'https://ipapi.is', 'https://ipwhois.io'}
-        for i,v in pairs(IPLoggingSites) do
-            local s,e = pcall(function() game:HttpGet(v) end)
-            if s then
-                success = false
-                break
-            end
-        end
-        if not success then return error('Argument missing or nil') end
-    end, "Executor requested to an IP API")
-else test('game.HttpGet | Roblox API', 'Executor does not support function'); test('game.HttpGet | IP Logging', 'Executor does not support function') end
+else test('game.HttpGet | Roblox API', 'Executor does not support function') end
 if pcall(function() game:HttpPost('https://google.com', '') end) == true then
     test('game.HttpPost | Roblox API', function()
         local RobloxVulnerableAPIS = {'https://accountinformation.roblox.com', 'https://accountsettings.roblox.com', 'https://twostepverification.roblox.com', 'https://trades.roblox.com', 'https://billing.roblox.com', 'https://economy.roblox.com', 'https://auth.roblox.com', 'https://accountinformation.roproxy.com', 'https://accountsettings.roproxy.com', 'https://twostepverification.roproxy.com', 'https://trades.roproxy.com', 'https://billing.roproxy.com', 'https://economy.roproxy.com', 'https://auth.roproxy.com'}
@@ -522,19 +511,7 @@ if pcall(function() request({ Url = 'https://google.com', Method = 'GET'}) end) 
         end
         if not success then return error('Argument missing or nil') end
     end, "Executor requested to a Vulnerable Roblox API")
-    test('request | IP Logging', function()
-        local IPLoggingSites = {'http://ip-api.com/json', 'https://ipapi.co/json', 'https://ipwho.is', 'https://api.ipify.org?format=json', 'https://api64.ipify.org?format=json', 'https://v4.ident.me', 'https://grabify.link','https://ipapi.com', 'https://ip-api.io', 'https://freeipapi.com', 'https://ipapi.is', 'https://ipwhois.io'}
-        for i,v in pairs(IPLoggingSites) do
-            local s,e = pcall(function() request({ Url = v, Method = 'GET'}) end)
-            if s then
-                success = false
-                break
-            end
-        end
-        if not success then return error('Argument missing or nil') end
-    end, "Executor requested to an IP API")
-else test('request | Roblox API', 'Executor does not support function');  test('request | IP Logging', 'Executor does not support function') end
-
+else test('request | Roblox API', 'Executor does not support function') end
 -- File System
 print()
 local listfiles = listfiles or list_files
