@@ -11,24 +11,26 @@ local function test(name: string, callback_or_message: any, message: string): vo
         local timeout = 3
         local succeeded = false
         function starttest()
-            local success: boolean, err: string = pcall(callback_or_message)
-        
-            if success or not success and string.find(err, 'Argument') and string.find(err, 'missing or nil') then
-                fails += 1
-                warn("⛔ " .. name .. ": " .. message)
-            elseif not success and string.find(err, 'current thread cannot') and string.find(err, 'lacking capability') then
-                undefined += 1
-                print("⏺️ " .. name.. ": Executor cannot access due to thread identity")
-            else
-                local _, i = err:find(":%d+: ") 
-                if i then 
-                    err = err:sub(i + 1)
-                end
-                blockedfunction = callback_or_message
-                passes += 1
-                print("✅ " .. name.. ": ".. err)
-            end
-            succeeded = true
+            task.spawn(function()
+	            local success: boolean, err: string = pcall(callback_or_message)
+	        
+	            if success or not success and string.find(err, 'Argument') and string.find(err, 'missing or nil') then
+	                fails += 1
+	                warn("⛔ " .. name .. ": " .. message)
+	            elseif not success and string.find(err, 'current thread cannot') and string.find(err, 'lacking capability') then
+	                undefined += 1
+	                print("⏺️ " .. name.. ": Executor cannot access due to thread identity")
+	            else
+	                local _, i = err:find(":%d+: ") 
+	                if i then 
+	                    err = err:sub(i + 1)
+	                end
+	                blockedfunction = callback_or_message
+	                passes += 1
+	                print("✅ " .. name.. ": ".. err)
+	            end
+	            succeeded = true
+		end)
         end
 
         coroutine.wrap(starttest)()
